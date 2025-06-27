@@ -114,8 +114,8 @@
         resultBox.innerHTML = "<p class='error'>Please enter a city name.</p>";
         return;
       }
-
-      const apiKey = "b2bb24b3b1c34d42890101449243009";
+// Get your own key from https://www.weatherapi.com and paste it below:
+  const apiKey = "YOUR_API_KEY_HERE"; // Replace with your actual WeatherAPI key
       const currentUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(location)}&aqi=no`;
       const forecastUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(location)}&days=3`;
 
