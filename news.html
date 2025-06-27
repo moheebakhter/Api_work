@@ -100,7 +100,9 @@
 <div id="errorBox" class="error"></div>
 
 <script>
-  const apiKey = "ff1aad16d994479386f7f69b7e528355"; // Replace with your actual key
+
+// Get your own key from https://newsapi.org/ and paste it below:
+const apiKey = "YOUR_API_KEY_HERE"; // Replace with your actual News api key
   const url = `https://newsapi.org/v2/everything?domains=wsj.com&apiKey=${apiKey}`;
 
   async function fetchNews() {
