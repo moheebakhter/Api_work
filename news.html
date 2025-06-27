@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WSJ News App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      margin: 0;
+      padding: 40px 20px;
+      color: #2c3e50;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2.5rem;
+    }
+
+    .news-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 25px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .news-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .news-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .news-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .news-content {
+      padding: 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .news-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #1f2d3d;
+    }
+
+    .news-description {
+      font-size: 14px;
+      color: #576574;
+      flex-grow: 1;
+    }
+
+    .read-more {
+      margin-top: 15px;
+      text-decoration: none;
+      color: #0077ff;
+      font-weight: 600;
+      display: inline-block;
+      transition: color 0.3s;
+    }
+
+    .read-more:hover {
+      color: #0051aa;
+    }
+
+    .error {
+      text-align: center;
+      color: red;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📰 Latest News from WSJ</h1>
+<div class="news-container" id="newsContainer"></div>
+<div id="errorBox" class="error"></div>
+
+<script>
+  const apiKey = "ff1aad16d994479386f7f69b7e528355"; // Replace with your actual key
+  const url = `https://newsapi.org/v2/everything?domains=wsj.com&apiKey=${apiKey}`;
+
+  async function fetchNews() {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status !== "ok") {
+        throw new Error(data.message || "Failed to fetch news.");
+      }
+
+      const articles = data.articles;
+      const container = document.getElementById("newsContainer");
+
+      if (articles.length === 0) {
+        container.innerHTML = "<p>No articles found.</p>";
+        return;
+      }
+
+      articles.forEach(article => {
+        const card = document.createElement("div");
+        card.className = "news-card";
+
+        card.innerHTML = `
+          <img src="${article.urlToImage || 'https://via.placeholder.com/320x200'}" class="news-image" alt="News Image">
+          <div class="news-content">
+            <div>
+              <div class="news-title">${article.title}</div>
+              <div class="news-description">${article.description || "No description available."}</div>
+            </div>
+            <a href="${article.url}" target="_blank" class="read-more">Read Full Article</a>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+    } catch (error) {
+      document.getElementById("errorBox").textContent = `Error: ${error.message}`;
+      console.error("Fetch error:", error);
+    }
+  }
+
+  fetchNews();
+</script>
+
+</body>
+</html>

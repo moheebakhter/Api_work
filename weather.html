@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌤️ Premium Weather App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Nunito', sans-serif;
+      background: url('https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .weather-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(18px);
+      border-radius: 20px;
+      padding: 20px 20px 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+    h2 {
+      font-size: 26px;
+      margin-bottom: 15px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 15px;
+      margin-bottom: 15px;
+      background-color: rgba(255, 255, 255, 0.95);
+      color: #333;
+    }
+    button {
+      background: linear-gradient(to right, #1e3c72, #2a5298);
+      border: none;
+      color: #fff;
+      padding: 10px 25px;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: linear-gradient(to right, #16325c, #1d4d91);
+    }
+    .result {
+      font-size: 17px;
+      margin-top: 15px;
+    }
+    .result img {
+      width: 65px;
+      margin: 10px 0;
+    }
+    .error {
+      background: rgba(255, 30, 30, 0.8);
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 15px;
+      color: #fff;
+    }
+    .forecast {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .day {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 8px;
+      border-radius: 10px;
+    }
+    .day p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    @media (max-width: 500px) {
+      h2 { font-size: 22px; }
+      .weather-container { padding: 20px 15px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="weather-container">
+    <h2>🌍 Weather Finder</h2>
+    <input type="text" id="locationInput" placeholder="Enter city name">
+    <button onclick="getWeather()">Check Weather</button>
+    <div class="result" id="resultBox"></div>
+    <div class="forecast" id="forecastBox"></div>
+  </div>
+
+  <script>
+    async function getWeather() {
+      const location = document.getElementById('locationInput').value.trim();
+      const resultBox = document.getElementById('resultBox');
+      const forecastBox = document.getElementById('forecastBox');
+      forecastBox.innerHTML = '';
+
+      if (!location) {
+        resultBox.innerHTML = "<p class='error'>Please enter a city name.</p>";
+        return;
+      }
+
+      const apiKey = "b2bb24b3b1c34d42890101449243009";
+      const currentUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(location)}&aqi=no`;
+      const forecastUrl = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(location)}&days=3`;
+
+      try {
+        const [currentRes, forecastRes] = await Promise.all([
+          fetch(currentUrl),
+          fetch(forecastUrl)
+        ]);
+
+        if (!currentRes.ok || !forecastRes.ok) throw new Error("City not found");
+
+        const currentData = await currentRes.json();
+        const forecastData = await forecastRes.json();
+
+        const city = currentData.location.name;
+        const temp = currentData.current.temp_c;
+        const condition = currentData.current.condition.text;
+        const icon = currentData.current.condition.icon;
+
+        resultBox.innerHTML = `
+          <p><strong>${city}</strong></p>
+          <img src="${icon}" alt="${condition}">
+          <p><strong>${temp}°C</strong></p>
+          <p>${condition}</p>
+        `;
+
+        forecastData.forecast.forecastday.forEach(day => {
+          const date = new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' });
+          forecastBox.innerHTML += `
+            <div class="day">
+              <p><strong>${date}</strong></p>
+              <img src="${day.day.condition.icon}" width="40" alt="${day.day.condition.text}">
+              <p>${day.day.avgtemp_c}°C</p>
+              <p>${day.day.condition.text}</p>
+            </div>
+          `;
+        });
+
+      } catch (err) {
+        resultBox.innerHTML = `<p class='error'>${err.message}</p>`;
+      }
+    }
+  </script>
+
+</body>
+</html>
